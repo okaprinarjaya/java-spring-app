@@ -1,12 +1,15 @@
 package com.springbootdemo.adeveloperdiary;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,31 +18,36 @@ import org.slf4j.LoggerFactory;
 public class JudokaApiService {
 	
 	public final static Logger logger = LoggerFactory.getLogger(JudokaApiService.class);
+	private static final AtomicLong lastTimeMs = new AtomicLong();
+	
+	@Autowired
 	public JudokaRepositoryService service;
 	
-	public JudokaApiService() {
-		service = new JudokaRepositoryService();
-	}
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public List<Judoka> getAllJudokas() {
-		logger.info("HALOOOOO OKA OKA OKA - getAllJudokas()");
 		List<Judoka> datas = service.findAll();
-		logger.info("OKA GO GO GO!");
-		logger.info(datas.toString());
 		return datas;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	public Judoka addJudoka() {
-		Judoka judoka = new Judoka();
-		judoka.setName("Mark Huizinga");
-		judoka.setCountry_origin("Netherlands");
-		judoka.setPhoto_profile_url_path("mark-huizinga.png");
-		
+	public ResponseEntity<String> addJudoka(@RequestBody Judoka judoka) {
+		judoka.setId("judoka-" + uniqueCurrentTimeMs());
 		service.create(judoka);
-		return judoka;
+		return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build();
+	}
+	
+	private static long uniqueCurrentTimeMs() {
+		long now = System.currentTimeMillis();
+		while (true) {
+			long lastTime = lastTimeMs.get();
+			if (lastTime >= now) {
+				now = lastTime + 1;
+			}
+			if (lastTimeMs.compareAndSet(lastTime, now)) {
+				return now;
+			}
+		}
 	}
 	
 }

@@ -3,12 +3,14 @@ package com.springbootdemo.adeveloperdiary;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
 
 
 @Configuration
+@ComponentScan("com.springbootdemo.adeveloperdiary")
 @EnableCouchbaseRepositories(basePackages={"com.springbootdemo.adeveloperdiary"})
 public class Config extends AbstractCouchbaseConfiguration {
 
